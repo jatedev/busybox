@@ -359,7 +359,11 @@ static void up_iface(void)
 		/* Let user know we mess up with interface */
 		bb_error_msg("upping interface");
 		if (network_ioctl(SIOCSIFFLAGS, &ifrequest, "setting interface flags") < 0)
-			xfunc_die();
+			if (errno == ENODEV) {
+				G.iface_exists = 0;
+				return;
+			} else
+				xfunc_die();
 	}
 
 #if 0 /* why do we mess with IP addr? It's not our business */
